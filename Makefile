@@ -39,13 +39,8 @@ targets:
 
 DOMAIN := .tsand.org
 ## the distro to build
-#DISTRO := xenial
-#DISTRO := focal
 DISTRO := jammy
-#DISTRO := bionicmin
-#DISTRO := focalmin
 #DISTRO := jammymin
-#DISTRO := bionic
 
 ## graphics
 GRAPHICS := none
@@ -103,13 +98,13 @@ VCPUS := 4
 OS-VARIANT := ubuntu20.04
 
 ## where the etc directoy lives
-ETCDIR := /etc/kvmbld
+ETCDIR := ~/kvmbld/etc/kvmbld
 
 ## where we store virtual nodes stuff 
-VARDIR := /var/lib/kvmbld
+VARDIR := ~/kvmbld/var/lib/kvmbld
 
 ## where we store extra data
-DATADIR := /data/virt
+DATADIR := ~/kvmbld/data/virt
 
 ## base images directory, used as backing store for qcow2 images
 BASEDIR := $(VARDIR)/base
