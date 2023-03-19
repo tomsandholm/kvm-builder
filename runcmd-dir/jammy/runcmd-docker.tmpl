@@ -9,6 +9,7 @@ runcmd:
   - apt-get install -y docker-ce docker-ce-cli containerd.io
   - sed -i 's@^ExecStart=.*@ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:4243 -H unix:///var/run/docker.sock@g' /lib/systemd/system/docker.service
   - systemctl daemon-reload
+  - docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
   - service docker restart
   - touch /etc/cloud/cloud-init.disabled
   - eject

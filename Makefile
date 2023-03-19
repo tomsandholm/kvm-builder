@@ -317,40 +317,6 @@ node:	config.iso
 
 	virt-install --connect=qemu:///system --name $(SNAME) --ram $(RAM) --vcpus=$(VCPUS) --os-type=linux --os-variant=ubuntu16.04 --disk path=$(IMGDIR)/$(SNAME)/rootfs.qcow2,device=disk,bus=virtio $(SWAPDISK) $(DATADISK) $(DBDISK) $(DBLOGDISK) $(WEBDISK) --disk path=$(IMGDIR)/$(SNAME)/config.iso,device=cdrom --graphics $(GRAPHICS) --import --wait=-1 
 	#virt-install --connect=qemu:///system --name $(SNAME) --ram $(RAM) --vcpus=$(VCPUS) --os-type=linux --os-variant=ubuntu16.04 --disk path=$(IMGDIR)/$(SNAME)/rootfs.qcow2,device=disk,bus=virtio $(SWAPDISK) $(DATADISK) $(DBDISK) $(DBLOGDISK) $(WEBDISK) --disk path=$(IMGDIR)/$(SNAME)/config.iso,device=cdrom --graphics $(GRAPHICS) --import --wait=-1 --noautoconsole
-	sudo echo "$(NAME) ansible_python_interpreter=\"/usr/bin/python3\"" >> /etc/ansible/hosts
 	virsh start $(SNAME)
 
-.PHONY:	cluster
-.PHONY: push-hosts
-.PHONY: cluster-delete
 
-## this sets a list of NODES if creating a cluster
-
-## create a cluster of gluster nodes
-## make -e PREFIX=gl COUNT=5 cluster
-cluster:
-	@:$(call check_defined,PREFIX)
-	@:$(call check_defined,COUNT)
-	$(eval $@_NODES := $(shell seq -f "$(PREFIX)%02g$(DOMAIN)" $(COUNT)))
-	@echo "##### NODES: $($@_NODES)"
-	rm hosts
-	> hosts
-	$(foreach var,$($@_NODES),make -e NAME=$(var) DATASIZE=4 ROLE=gluster node;)
-	$(foreach var,$($@_NODES),getent hosts $(var) >> hosts;)
-	cat hosts.template hosts > client-hosts
-	make push-hosts
-	make cluster-probe
-
-push-hosts:
-	cat hosts | awk '{print $$3}' | xargs -n 1 ssh-keygen -R 
-	cat hosts | awk '{print $$2}' | xargs -n 1 ssh-keygen -R 
-	cat hosts | awk '{print $$1}' | xargs -n 1 ssh-keygen -R 
-	sleep 5
-	$(foreach var,$(shell awk '{print $$3}' hosts),scp -o StrictHostKeyChecking=no client-hosts $(var):/etc/hosts && sleep 5;)
-
-cluster-delete:
-	cat hosts | awk '{print $$3}' | xargs -n 1 -I {} make -e NAME="{}" Delete
-
-cluster-probe:
-	$(eval PRIMARY := $(shell head -1 hosts| awk '{print $$3}'))
-	awk '{print $$3}' hosts | tail +2 | xargs -n1 ssh $(PRIMARY) gluster peer probe
