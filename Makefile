@@ -49,10 +49,10 @@ GRAPHICS := none
 SNAME = $(shell echo $(NAME) | cut -d'.' -f1)
 
 ## the URL of where to get THIS $DISTRO
-URL := $(shell egrep "^$(DISTRO)" ./distro | cut -d';' -f3)
+URL := $(shell egrep "^$(DISTRO);" ./distro | cut -d';' -f3)
 
 ## the IMG name of THIS $DISTRO
-SRC := $(shell egrep "^$(DISTRO)" ./distro | cut -d';' -f4)
+SRC := $(shell egrep "^$(DISTRO);" ./distro | cut -d';' -f4)
 
 ## stuff
 UUID := $(shell uuidgen)
@@ -181,16 +181,13 @@ $(SRCDIR)/$(DISTRO):
 	
 ## setup the base master qcow2 images
 base:	sources $(BASEDIR)/$(DISTRO)
-
 $(BASEDIR)/$(DISTRO):	$(BASEDIR)/$(DISTRO)/rootfs.qcow2
-
 $(BASEDIR)/$(DISTRO)/rootfs.qcow2:
 	mkdir -p $(BASEDIR)/$(DISTRO)
 	cp -v $(SRCDIR)/$(DISTRO)/$(SRC) $(BASEDIR)/$(DISTRO)/rootfs.qcow2
 
 ## create a node image
 image:	base $(IMGDIR)/$(SNAME)
-
 $(IMGDIR)/$(SNAME): $(IMGDIR)/$(SNAME)/rootfs.qcow2
 
 ## create a node root disk
